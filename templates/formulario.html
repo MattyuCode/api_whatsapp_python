@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invitar al Grupo</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Invitar al Grupo de WhatsApp</h1>
+        <form id="inviteForm">
+            <div class="input-group">
+                <label for="phone1">Número de teléfono 1:</label>
+                <div class="input-wrapper">
+                    <span class="prefix">+502</span>
+                    <input type="tel" id="phone1" class="phone-input number-input"
+                           pattern="[0-9]{8}" maxlength="8" placeholder="12345678" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="phone2">Número de teléfono 2 (opcional):</label>
+                <div class="input-wrapper">
+                    <span class="prefix">+502</span>
+                    <input type="tel" id="phone2" class="phone-input number-input"
+                           pattern="[0-9]{8}" maxlength="8" placeholder="12345678">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="phone3">Número de teléfono 3 (opcional):</label>
+                <div class="input-wrapper">
+                    <span class="prefix">+502</span>
+                    <input type="tel" id="phone3" class="phone-input number-input"
+                           pattern="[0-9]{8}" maxlength="8" placeholder="12345678">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="phone4">Número de teléfono 4 (opcional):</label>
+                <div class="input-wrapper">
+                    <span class="prefix">+502</span>
+                    <input type="tel" id="phone4" class="phone-input number-input"
+                           pattern="[0-9]{8}" maxlength="8" placeholder="12345678">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="phone5">Número de teléfono 5 (opcional):</label>
+                <div class="input-wrapper">
+                    <span class="prefix">+502</span>
+                    <input type="tel" id="phone5" class="phone-input number-input"
+                           pattern="[0-9]{8}" maxlength="8" placeholder="12345678">
+                </div>
+            </div>
+
+            <button type="submit" id="sendButton">
+                <span id="buttonText">Enviar Invitaciones</span>
+                <span id="loadingSpinner" style="display:none;">⌛ Enviando...</span>
+            </button>
+
+            <div id="result"></div>
+        </form>
+    </div>
+
+ <script src="/static/js/app.js"></script>
+</body>
+</html>
