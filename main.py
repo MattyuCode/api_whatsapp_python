@@ -1,3 +1,5 @@
+import os.path
+from pathlib import Path
 from flask import Flask, request, jsonify, send_from_directory, render_template
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -11,17 +13,41 @@ import urllib.parse
 # app = Flask(__name__)
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
+
+
+def get_chrome_profile_path():
+    if os.name == 'nt': #windows
+        base_path = os.path.join(os.environ['LOCALAPPDATA'], 'Google', 'Chrome', 'User Data')
+    elif os.name == 'posix':  # macOS/Linux
+        base_path = os.path.join(str(Path.home()), '.config', 'google-chrome')
+    else:
+        raise OSError("Sistema operativo no soportado")
+
+    default_profile = os.path.join(base_path, 'Default')
+    if os.path.exists(base_path):
+        return  default_profile
+
+    for item in os.listdir(base_path):
+        if item.startswith('Profile'):
+            return  os.path.join(base_path, item)
+
+    return base_path
+
+
+
 # Configuración
 WHATSAPP_WEB_URL = "https://web.whatsapp.com/" #Api_whatsapp_web
 GROUP_LINK = "https://chat.whatsapp.com/FZR1QblgSn7KBCTArRrMLf"  # Tu enlace de grupo
-CHROME_PROFILE_PATH = "C:\\Users\\AnalistaProgramadorB\\AppData\\Local\\Google\\Chrome\\User Data\\Default"
+#CHROME_PROFILE_PATH = "C:\\Users\\AnalistaProgramadorB\\AppData\\Local\\Google\\Chrome\\User Data\\Default"
+CHROME_PROFILE_PATH = get_chrome_profile_path()
 MESSAGE = f"¡Únete a nuestro grupo! {GROUP_LINK}"  # Mensaje personalizable
 COUNTRY_CODE = "502"  # Código para Guatemala
+
+
 
 @app.route('/')
 def home():
     return render_template('formulario.html')
-
 
 def init_driver():
     chrome_options = Options()
