@@ -14,9 +14,11 @@ import urllib.parse
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
 
-
+# ================================
+# OBTENER PERFIL DE CHROME
+# ================================
 def get_chrome_profile_path():
-    if os.name == 'nt': #windows
+    if os.name == 'nt':  # Windows
         base_path = os.path.join(os.environ['LOCALAPPDATA'], 'Google', 'Chrome', 'User Data')
     elif os.name == 'posix':  # macOS/Linux
         base_path = os.path.join(str(Path.home()), '.config', 'google-chrome')
@@ -24,31 +26,49 @@ def get_chrome_profile_path():
         raise OSError("Sistema operativo no soportado")
 
     default_profile = os.path.join(base_path, 'Default')
-    if os.path.exists(base_path):
-        return  default_profile
+
+    if os.path.exists(default_profile):
+        return default_profile
 
     for item in os.listdir(base_path):
         if item.startswith('Profile'):
-            return  os.path.join(base_path, item)
+            return os.path.join(base_path, item)
 
     return base_path
 
 
+# ================================
+# OBTENER NOMBRE DEL GRUPO
+# ================================
+def get_group_name(driver, group_link):
+    try:
+        driver.get(group_link)
 
-# Configuración
-WHATSAPP_WEB_URL = "https://web.whatsapp.com/" #Api_whatsapp_web
-GROUP_LINK = "https://chat.whatsapp.com/FZR1QblgSn7KBCTArRrMLf"  # Tu enlace de grupo
-#CHROME_PROFILE_PATH = "C:\\Users\\AnalistaProgramadorB\\AppData\\Local\\Google\\Chrome\\User Data\\Default"
+        # Espera a que cargue el nombre del grupo
+        group_name_element = WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.XPATH, '//span[@dir="auto"]'))
+        )
+
+        return group_name_element.text
+
+    except Exception as e:
+        print(f"Error obteniendo nombre del grupo: {str(e)}")
+        return "nuestro grupo"
+
+
+# ================================
+# CONFIGURACIÓN
+# ================================
+WHATSAPP_WEB_URL = "https://web.whatsapp.com/"  # Api_whatsapp_web
+GROUP_LINK = "https://chat.whatsapp.com/CRlz7g6FdV44myAiwuJXue"  # Tu enlace de grupo
+# CHROME_PROFILE_PATH = "C:\\Users\\AnalistaProgramadorB\\AppData\\Local\\Google\\Chrome\\User Data\\Default"
 CHROME_PROFILE_PATH = get_chrome_profile_path()
-MESSAGE = f"¡Únete a nuestro grupo! {GROUP_LINK}"  # Mensaje personalizable
 COUNTRY_CODE = "502"  # Código para Guatemala
 
 
-
-@app.route('/')
-def home():
-    return render_template('formulario.html')
-
+# ================================
+# INICIALIZAR DRIVER
+# ================================
 def init_driver():
     chrome_options = Options()
     chrome_options.add_argument(f"user-data-dir={CHROME_PROFILE_PATH}")
@@ -56,39 +76,52 @@ def init_driver():
     return webdriver.Chrome(options=chrome_options)
 
 
+# ================================
+# ENVIAR MENSAJE
+# ================================
 def send_whatsapp_message(driver, phone_number, message):
     try:
-        # Abrir chat directo con el número
         formatted_num = f"{COUNTRY_CODE}{phone_number.lstrip('0')}"
         chat_url = f"https://web.whatsapp.com/send?phone={formatted_num}&text={urllib.parse.quote(message)}"
         driver.get(chat_url)
 
-        # Esperar a que cargue el chat
         WebDriverWait(driver, 30).until(
-            EC.presence_of_element_located((By.XPATH, '//div[@contenteditable="true"][@data-tab="10"]'))
+            EC.presence_of_element_located((By.XPATH, '//div[@contenteditable="true"]'))
         )
-        time.sleep(3)  # Espera adicional
 
-        # Enviar mensaje
-        input_box = driver.find_element(By.XPATH, '//div[@contenteditable="true"][@data-tab="10"]')
-        input_box.send_keys(Keys.ENTER)
         time.sleep(2)
 
+        input_box = driver.find_element(By.XPATH, '//div[@contenteditable="true"]')
+        input_box.send_keys(Keys.ENTER)
+
+        time.sleep(2)
         return True
+
     except Exception as e:
         print(f"Error enviando mensaje a {phone_number}: {str(e)}")
         return False
 
 
+# ================================
+# RUTA PRINCIPAL
+# ================================
+@app.route('/')
+def home():
+    return render_template('formulario.html')
+
+
+# ================================
+# ENVIAR INVITACIONES
+# ================================
 @app.route('/send_invitation', methods=['POST'])
 def send_invitation():
     data = request.json
     raw_numbers = data.get('numbers', [])
 
     if not raw_numbers:
-        return jsonify({"error": "Se requieren números en formato: {'numbers': ['12345678']}"}), 400
+        return jsonify({"error": "Se requieren números"}), 400
 
-        # Validar números (8 dígitos sin código de país)
+    # Validar números
     validated_numbers = []
     for num in raw_numbers:
         clean_num = ''.join(c for c in str(num) if c.isdigit())
@@ -98,35 +131,43 @@ def send_invitation():
             print(f"Número inválido omitido: {num}")
 
     if not validated_numbers:
-        return jsonify({"error": "Ningún número válido proporcionado (deben ser 8 dígitos)"}), 400
+        return jsonify({"error": "Ningún número válido"}), 400
 
     driver = init_driver()
+
     try:
-        # Iniciar WhatsApp Web
+        # Abrir WhatsApp Web
         driver.get(WHATSAPP_WEB_URL)
-        time.sleep(15)  # Tiempo para escanear QR (solo primera vez)
+        time.sleep(15)
+
+        # 🔥 OBTENER NOMBRE DEL GRUPO
+        group_name = get_group_name(driver, GROUP_LINK)
+
+        # 🔥 MENSAJE DINÁMICO
+        message = f"¡Únete al  Taller Morfología y Sintaxis CLCHUJ Grupo 2 '{group_name}'! {GROUP_LINK}"
 
         results = {}
+
         for number in validated_numbers:
-            success = send_whatsapp_message(driver, number, MESSAGE)
+            success = send_whatsapp_message(driver, number, message)
             results[number] = "success" if success else "failed"
             time.sleep(3)
 
         return jsonify({
             "status": "completed",
             "results": results,
-            "message": f"Procesados {len(validated_numbers)} números"
+            "message": f"Procesados {len(validated_numbers)} números",
+            "group_name": group_name
         }), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
     finally:
         driver.quit()
 
-
-@app.route('/')
-def serve_form():
-    return send_from_directory('static', 'templates/formulario.html')
-
+# ================================
+# INICIO APP
+# ================================
 if __name__ == '__main__':
     app.run(debug=True)
