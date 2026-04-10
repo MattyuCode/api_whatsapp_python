@@ -60,7 +60,7 @@ def get_group_name(driver, group_link):
 # CONFIGURACIÓN
 # ================================
 WHATSAPP_WEB_URL = "https://web.whatsapp.com/"  # Api_whatsapp_web
-GROUP_LINK = "https://chat.whatsapp.com/GZ3XYV7EhUU8geKbkxSsiD"  # Tu enlace de grupo
+GROUP_LINK = "https://chat.whatsapp.com/FFqcJgfgPnAA3wjYkgCyWY"  # Tu enlace de grupo
 # CHROME_PROFILE_PATH = "C:\\Users\\AnalistaProgramadorB\\AppData\\Local\\Google\\Chrome\\User Data\\Default"
 CHROME_PROFILE_PATH = get_chrome_profile_path()
 COUNTRY_CODE = "502"  # Código para Guatemala
