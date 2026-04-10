@@ -60,7 +60,7 @@ def get_group_name(driver, group_link):
 # CONFIGURACIÓN
 # ================================
 WHATSAPP_WEB_URL = "https://web.whatsapp.com/"  # Api_whatsapp_web
-GROUP_LINK = "https://chat.whatsapp.com/CRlz7g6FdV44myAiwuJXue"  # Tu enlace de grupo
+GROUP_LINK = "https://chat.whatsapp.com/GZ3XYV7EhUU8geKbkxSsiD"  # Tu enlace de grupo
 # CHROME_PROFILE_PATH = "C:\\Users\\AnalistaProgramadorB\\AppData\\Local\\Google\\Chrome\\User Data\\Default"
 CHROME_PROFILE_PATH = get_chrome_profile_path()
 COUNTRY_CODE = "502"  # Código para Guatemala
@@ -144,7 +144,7 @@ def send_invitation():
         group_name = get_group_name(driver, GROUP_LINK)
 
         # 🔥 MENSAJE DINÁMICO
-        message = f"¡Únete al  Taller Morfología y Sintaxis CLCHUJ Grupo 2 '{group_name}'! {GROUP_LINK}"
+        message = f"¡Únete al  Taller Morfología y Sintaxis CLCHUJ Grupo 1 '{group_name}'! {GROUP_LINK}"
 
         results = {}
 
